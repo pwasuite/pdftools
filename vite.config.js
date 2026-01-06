@@ -1,9 +1,22 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { execSync } from "child_process";
+
+// Get version from git describe
+const getGitVersion = () => {
+  try {
+    return execSync("git describe --tags --always --dirty").toString().trim();
+  } catch {
+    return "unknown version";
+  }
+};
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(getGitVersion()),
+  },
   plugins: [
     react(),
     VitePWA({
@@ -16,7 +29,8 @@ export default defineConfig({
       manifest: {
         name: "PDF Tools by PWA Suite",
         short_name: "PDF Tools",
-        description: "Free browser-based PDF tools - Compress, Merge, Split, and more. All processing happens locally.",
+        description:
+          "Free browser-based PDF tools - Compress, Merge, Split, and more. All processing happens locally.",
         theme_color: "#0078d4",
         background_color: "#1e1e1e",
         display: "standalone",
@@ -27,19 +41,19 @@ export default defineConfig({
             src: "pwa-192x192.svg",
             sizes: "192x192",
             type: "image/svg+xml",
-            purpose: "any maskable"
+            purpose: "any maskable",
           },
           {
             src: "pwa-512x512.svg",
             sizes: "512x512",
             type: "image/svg+xml",
-            purpose: "any maskable"
-          }
-        ]
-      }
-    })
+            purpose: "any maskable",
+          },
+        ],
+      },
+    }),
   ],
   build: { target: "esnext" },
   base: "./",
-  worker: { format: "es" }
+  worker: { format: "es" },
 });

@@ -6,10 +6,10 @@ var Module;
 
 // Quality settings mapping
 const QUALITY_SETTINGS = {
-  1: "/screen",    // Lowest quality, smallest size
-  2: "/ebook",     // Default - good balance
-  3: "/printer",   // Higher quality
-  4: "/prepress"   // Highest quality, largest size
+  1: "/screen", // Lowest quality, smallest size
+  2: "/ebook", // Default - good balance
+  3: "/printer", // Higher quality
+  4: "/prepress", // Highest quality, largest size
 };
 
 function runGhostscript(inputFiles, gsArguments, outputPattern, callback) {
@@ -19,7 +19,7 @@ function runGhostscript(inputFiles, gsArguments, outputPattern, callback) {
     preRun: [
       function () {
         // Write all input files to the virtual filesystem
-        inputFiles.forEach(file => {
+        inputFiles.forEach((file) => {
           self.Module.FS.writeFile(file.name, file.data);
         });
       },
@@ -30,17 +30,17 @@ function runGhostscript(inputFiles, gsArguments, outputPattern, callback) {
         const outputs = [];
 
         // Check for numbered outputs (split operation)
-        if (outputPattern.includes('%')) {
+        if (outputPattern.includes("%")) {
           let pageNum = 1;
           while (true) {
             // Support both %d (simple) and %04d (zero-padded) patterns
             let filename;
-            if (outputPattern.includes('%04d')) {
-              filename = outputPattern.replace('%04d', String(pageNum).padStart(4, '0'));
-            } else if (outputPattern.includes('%03d')) {
-              filename = outputPattern.replace('%03d', String(pageNum).padStart(3, '0'));
+            if (outputPattern.includes("%04d")) {
+              filename = outputPattern.replace("%04d", String(pageNum).padStart(4, "0"));
+            } else if (outputPattern.includes("%03d")) {
+              filename = outputPattern.replace("%03d", String(pageNum).padStart(3, "0"));
             } else {
-              filename = outputPattern.replace('%d', pageNum);
+              filename = outputPattern.replace("%d", pageNum);
             }
             try {
               const data = self.Module.FS.readFile(filename, { encoding: "binary" });
@@ -61,19 +61,23 @@ function runGhostscript(inputFiles, gsArguments, outputPattern, callback) {
         }
 
         // Convert output data to plain arrays for transfer
-        const results = outputs.map(out => ({
+        const results = outputs.map((out) => ({
           name: out.name,
-          data: Array.from(out.data)
+          data: Array.from(out.data),
         }));
 
         callback({ outputs: results });
       },
     ],
     arguments: gsArguments,
-    print: function (text) { console.log("GS:", text); },
-    printErr: function (text) { console.error("GS Error:", text); },
+    print: function (text) {
+      console.log("GS:", text);
+    },
+    printErr: function (text) {
+      console.error("GS Error:", text);
+    },
     totalDependencies: 0,
-    noExitRuntime: 1
+    noExitRuntime: 1,
   };
 
   if (!self.Module) {
@@ -99,7 +103,7 @@ function handleCompress(data, callback) {
     "-dQUIET",
     "-dBATCH",
     "-sOutputFile=output.pdf",
-    "input.pdf"
+    "input.pdf",
   ];
 
   // data.fileData is already a Uint8Array
@@ -115,10 +119,10 @@ function handleMerge(data, callback) {
   // data.filesData is an array of { name, data } objects
   const inputFiles = data.filesData.map((file, index) => ({
     name: `input${index}.pdf`,
-    data: new Uint8Array(file.data)
+    data: new Uint8Array(file.data),
   }));
 
-  const inputNames = inputFiles.map(f => f.name);
+  const inputNames = inputFiles.map((f) => f.name);
 
   let args = [
     "-sDEVICE=pdfwrite",
@@ -148,7 +152,7 @@ function handleSplit(data, callback) {
     "-dQUIET",
     "-dBATCH",
     "-sOutputFile=page_%04d.pdf",
-    "input.pdf"
+    "input.pdf",
   ];
 
   runGhostscript(
@@ -158,8 +162,6 @@ function handleSplit(data, callback) {
     callback
   );
 }
-
-
 
 function handleExtractPages(data, callback) {
   const { firstPage, lastPage } = data;
@@ -173,7 +175,7 @@ function handleExtractPages(data, callback) {
     "-dQUIET",
     "-dBATCH",
     "-sOutputFile=extracted.pdf",
-    "input.pdf"
+    "input.pdf",
   ];
 
   runGhostscript(
@@ -184,12 +186,10 @@ function handleExtractPages(data, callback) {
   );
 }
 
-
-
-self.addEventListener('message', function ({ data: e }) {
+self.addEventListener("message", function ({ data: e }) {
   console.log("Worker received message:", e);
 
-  if (e.target !== 'wasm') {
+  if (e.target !== "wasm") {
     return;
   }
 
@@ -201,23 +201,23 @@ self.addEventListener('message', function ({ data: e }) {
   };
 
   switch (operation) {
-    case 'compress':
+    case "compress":
       handleCompress(messageData, sendResponse);
       break;
-    case 'merge':
+    case "merge":
       handleMerge(messageData, sendResponse);
       break;
-    case 'split':
+    case "split":
       handleSplit(messageData, sendResponse);
       break;
 
-    case 'extractPages':
+    case "extractPages":
       handleExtractPages(messageData, sendResponse);
       break;
-    case 'grayscale':
+    case "grayscale":
       handleGrayscale(messageData, sendResponse);
       break;
-    case 'resize':
+    case "resize":
       handleResize(messageData, sendResponse);
       break;
     default:
@@ -226,7 +226,7 @@ self.addEventListener('message', function ({ data: e }) {
 });
 
 function handleResize(data, callback) {
-  const paperSize = data.paperSize || 'a4';
+  const paperSize = data.paperSize || "a4";
   const args = [
     "-sDEVICE=pdfwrite",
     "-dCompatibilityLevel=1.4",
@@ -237,7 +237,7 @@ function handleResize(data, callback) {
     "-dQUIET",
     "-dBATCH",
     "-sOutputFile=resized.pdf",
-    "input.pdf"
+    "input.pdf",
   ];
 
   runGhostscript(
@@ -258,7 +258,7 @@ function handleGrayscale(data, callback) {
     "-dQUIET",
     "-dBATCH",
     "-sOutputFile=grayscale.pdf",
-    "input.pdf"
+    "input.pdf",
   ];
 
   runGhostscript(
