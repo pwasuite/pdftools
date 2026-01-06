@@ -4,71 +4,269 @@ function loadScript() {
 
 var Module;
 
-function _GSPS2PDF(
-  dataStruct,
-  responseCallback,
-) {
-  // first download the ps data
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", dataStruct.psDataURL);
-  xhr.responseType = "arraybuffer";
-  xhr.onload = function () {
-    console.log('onload')
-    // release the URL
-    self.URL.revokeObjectURL(dataStruct.psDataURL);
-    //set up EMScripten environment
-    Module = {
-      preRun: [
-        function () {
-          self.Module.FS.writeFile("input.pdf", new Uint8Array(xhr.response));
-        },
-      ],
-      postRun: [
-        function () {
-          var uarray = self.Module.FS.readFile("output.pdf", { encoding: "binary" });
-          var blob = new Blob([uarray], { type: "application/octet-stream" });
-          var pdfDataURL = self.URL.createObjectURL(blob);
-          responseCallback({ pdfDataURL: pdfDataURL, url: dataStruct.url });
-        },
-      ],
-      arguments: [
-        "-sDEVICE=pdfwrite",
-        "-dCompatibilityLevel=1.4",
-        "-dPDFSETTINGS=/ebook",
-        "-DNOPAUSE",
-        "-dQUIET",
-        "-dBATCH",
-        "-sOutputFile=output.pdf",
-        "input.pdf",
-      ],
-      print: function (text) {},
-      printErr: function (text) {},
-      totalDependencies: 0,
-      noExitRuntime: 1
-    };
-    // Module.setStatus("Loading Ghostscript...");
-    if (!self.Module) {
-      self.Module = Module;
-      loadScript();
-    } else {
-      self.Module["calledRun"] = false;
-      self.Module["postRun"] = Module.postRun;
-      self.Module["preRun"] = Module.preRun;
-      self.Module.callMain();
-    }
+// Quality settings mapping
+const QUALITY_SETTINGS = {
+  1: "/screen",    // Lowest quality, smallest size
+  2: "/ebook",     // Default - good balance
+  3: "/printer",   // Higher quality
+  4: "/prepress"   // Highest quality, largest size
+};
+
+function runGhostscript(inputFiles, gsArguments, outputPattern, callback) {
+  // inputFiles is now an array of { name, data } where data is Uint8Array
+
+  Module = {
+    preRun: [
+      function () {
+        // Write all input files to the virtual filesystem
+        inputFiles.forEach(file => {
+          self.Module.FS.writeFile(file.name, file.data);
+        });
+      },
+    ],
+    postRun: [
+      function () {
+        // Collect output files matching the pattern
+        const outputs = [];
+
+        // Check for numbered outputs (split operation)
+        if (outputPattern.includes('%')) {
+          let pageNum = 1;
+          while (true) {
+            // Support both %d (simple) and %04d (zero-padded) patterns
+            let filename;
+            if (outputPattern.includes('%04d')) {
+              filename = outputPattern.replace('%04d', String(pageNum).padStart(4, '0'));
+            } else if (outputPattern.includes('%03d')) {
+              filename = outputPattern.replace('%03d', String(pageNum).padStart(3, '0'));
+            } else {
+              filename = outputPattern.replace('%d', pageNum);
+            }
+            try {
+              const data = self.Module.FS.readFile(filename, { encoding: "binary" });
+              outputs.push({ name: filename, data: data });
+              pageNum++;
+            } catch (e) {
+              break; // No more files
+            }
+          }
+        } else {
+          // Single output file
+          try {
+            const data = self.Module.FS.readFile(outputPattern, { encoding: "binary" });
+            outputs.push({ name: outputPattern, data: data });
+          } catch (e) {
+            console.error("Error reading output file:", e);
+          }
+        }
+
+        // Convert output data to plain arrays for transfer
+        const results = outputs.map(out => ({
+          name: out.name,
+          data: Array.from(out.data)
+        }));
+
+        callback({ outputs: results });
+      },
+    ],
+    arguments: gsArguments,
+    print: function (text) { console.log("GS:", text); },
+    printErr: function (text) { console.error("GS Error:", text); },
+    totalDependencies: 0,
+    noExitRuntime: 1
   };
-  xhr.send();
+
+  if (!self.Module) {
+    self.Module = Module;
+    loadScript();
+  } else {
+    self.Module["calledRun"] = false;
+    self.Module["postRun"] = Module.postRun;
+    self.Module["preRun"] = Module.preRun;
+    self.Module["arguments"] = gsArguments;
+    self.Module.callMain(gsArguments);
+  }
+}
+
+function handleCompress(data, callback) {
+  const qualitySetting = QUALITY_SETTINGS[data.quality] || "/ebook";
+
+  const args = [
+    "-sDEVICE=pdfwrite",
+    "-dCompatibilityLevel=1.4",
+    `-dPDFSETTINGS=${qualitySetting}`,
+    "-dNOPAUSE",
+    "-dQUIET",
+    "-dBATCH",
+    "-sOutputFile=output.pdf",
+    "input.pdf"
+  ];
+
+  // data.fileData is already a Uint8Array
+  runGhostscript(
+    [{ name: "input.pdf", data: new Uint8Array(data.fileData) }],
+    args,
+    "output.pdf",
+    callback
+  );
+}
+
+function handleMerge(data, callback) {
+  // data.filesData is an array of { name, data } objects
+  const inputFiles = data.filesData.map((file, index) => ({
+    name: `input${index}.pdf`,
+    data: new Uint8Array(file.data)
+  }));
+
+  const inputNames = inputFiles.map(f => f.name);
+
+  let args = [
+    "-sDEVICE=pdfwrite",
+    "-dCompatibilityLevel=1.4",
+    "-dNOPAUSE",
+    "-dQUIET",
+    "-dBATCH",
+    "-sOutputFile=merged.pdf",
+  ];
+
+  // Add compression settings if enabled
+  if (data.enableCompression) {
+    const qualitySetting = QUALITY_SETTINGS[data.quality] || "/ebook";
+    args.push(`-dPDFSETTINGS=${qualitySetting}`);
+  }
+
+  args = args.concat(inputNames);
+
+  runGhostscript(inputFiles, args, "merged.pdf", callback);
+}
+
+function handleSplit(data, callback) {
+  const args = [
+    "-sDEVICE=pdfwrite",
+    "-dCompatibilityLevel=1.4",
+    "-dNOPAUSE",
+    "-dQUIET",
+    "-dBATCH",
+    "-sOutputFile=page_%04d.pdf",
+    "input.pdf"
+  ];
+
+  runGhostscript(
+    [{ name: "input.pdf", data: new Uint8Array(data.fileData) }],
+    args,
+    "page_%04d.pdf",
+    callback
+  );
 }
 
 
-self.addEventListener('message', function({data:e}) {
-  console.log("message", e)
-  // e.data contains the message sent to the worker.
-  if (e.target !== 'wasm'){
+
+function handleExtractPages(data, callback) {
+  const { firstPage, lastPage } = data;
+
+  const args = [
+    "-sDEVICE=pdfwrite",
+    "-dCompatibilityLevel=1.4",
+    `-dFirstPage=${firstPage}`,
+    `-dLastPage=${lastPage}`,
+    "-dNOPAUSE",
+    "-dQUIET",
+    "-dBATCH",
+    "-sOutputFile=extracted.pdf",
+    "input.pdf"
+  ];
+
+  runGhostscript(
+    [{ name: "input.pdf", data: new Uint8Array(data.fileData) }],
+    args,
+    "extracted.pdf",
+    callback
+  );
+}
+
+
+
+self.addEventListener('message', function ({ data: e }) {
+  console.log("Worker received message:", e);
+
+  if (e.target !== 'wasm') {
     return;
   }
-  console.log('Message received from main script', e.data);
-  _GSPS2PDF(e.data, ({pdfDataURL}) => self.postMessage(pdfDataURL))
+
+  const messageData = e.data;
+  const operation = messageData.operation;
+
+  const sendResponse = (result) => {
+    self.postMessage({ operation, ...result });
+  };
+
+  switch (operation) {
+    case 'compress':
+      handleCompress(messageData, sendResponse);
+      break;
+    case 'merge':
+      handleMerge(messageData, sendResponse);
+      break;
+    case 'split':
+      handleSplit(messageData, sendResponse);
+      break;
+
+    case 'extractPages':
+      handleExtractPages(messageData, sendResponse);
+      break;
+    case 'grayscale':
+      handleGrayscale(messageData, sendResponse);
+      break;
+    case 'resize':
+      handleResize(messageData, sendResponse);
+      break;
+    default:
+      console.error("Unknown operation:", operation);
+  }
 });
 
-console.log("Worker ready")
+function handleResize(data, callback) {
+  const paperSize = data.paperSize || 'a4';
+  const args = [
+    "-sDEVICE=pdfwrite",
+    "-dCompatibilityLevel=1.4",
+    "-dFIXEDMEDIA",
+    "-dPDFFitPage",
+    `-sPAPERSIZE=${paperSize}`,
+    "-dNOPAUSE",
+    "-dQUIET",
+    "-dBATCH",
+    "-sOutputFile=resized.pdf",
+    "input.pdf"
+  ];
+
+  runGhostscript(
+    [{ name: "input.pdf", data: new Uint8Array(data.fileData) }],
+    args,
+    "resized.pdf",
+    callback
+  );
+}
+
+function handleGrayscale(data, callback) {
+  const args = [
+    "-sDEVICE=pdfwrite",
+    "-dCompatibilityLevel=1.4",
+    "-sColorConversionStrategy=Gray",
+    "-dProcessColorModel=/DeviceGray",
+    "-dNOPAUSE",
+    "-dQUIET",
+    "-dBATCH",
+    "-sOutputFile=grayscale.pdf",
+    "input.pdf"
+  ];
+
+  runGhostscript(
+    [{ name: "input.pdf", data: new Uint8Array(data.fileData) }],
+    args,
+    "grayscale.pdf",
+    callback
+  );
+}
+
+console.log("PDF Tools Worker ready");

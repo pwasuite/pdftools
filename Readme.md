@@ -1,18 +1,31 @@
-# Ghostscript-pdf-compress.wasm
+# pwasuite/pdftools, repository of pdf.pwasuite.com
+
+**Try it: [PDF Tools right into the browser](https://pdf.pwasuite.com/)**
 
 ## Context
 
-This project is a demo of another usage of the `gs.wasm` that [@ochachacha](https://github.com/ochachacha) compiled. It takes any PDF and compress it via ghostscript.
+This project is another usage of the `gs.wasm` that [@ochachacha](https://github.com/ochachacha) compiled.
+It is based on a fork of [Laurent Meyer's demo](https://github.com/laurentmmeyer/ghostscript-pdf-compress.wasm) of PDF compression right into the browser.
 
-The applied command is:
+It provides many tools for PDF manipulation, right into the browser:
+* compression/minfication
+* merge multiple PDF files into one
+* split PDF into individual pages
+* extract page ranges
+* convert PDF to grayscale
+* change page size
+
+It applies ghostscript commands such as:
 
 ```
 gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile=output.pdf input.pdf
 ```
 
+Exact command varies based on user input and use case.
+
 ## WebWorker
 
-The compression is now processed in a webworker so that the main thread doesn't become unresponsive and now there is virtually no limit to the size of the PDF that you can compress :tada:  
+The compression is processed in a webworker so that the main thread doesn't become unresponsive and there is virtually no limit to the size of the PDF that you can compress :tada:  
 
 ## Run the project
 
@@ -25,10 +38,7 @@ yarn
 yarn dev
 ```
 
-## Demo
+## Try it online
 
-[https://laurentmmeyer.github.io/ghostscript-pdf-compress.wasm/](https://laurentmmeyer.github.io/ghostscript-pdf-compress.wasm/)
+[https://pdf.pwasuite.com/](https://pdf.pwasuite.com/)
 
-## Blog
-
-I wrote a [post](https://meyer-laurent.com/playing-around-webassembly-and-ghostscript) about the process.
