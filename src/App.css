@@ -1152,6 +1152,38 @@ button {
   color: var(--text-muted);
 }
 
+/* Status line variations for page count detection */
+.range-hint.status-detecting {
+  color: var(--accent-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.range-hint.status-tip {
+  color: var(--accent-primary);
+  background: rgba(0, 120, 212, 0.1);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-top: 1rem;
+}
+
+.range-hint.status-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-secondary);
+}
+
+.range-hint.status-warning {
+  color: #ffc107;
+}
+
+.range-hint .link-btn {
+  font-size: inherit;
+}
+
 .warning-hint {
   margin-top: 0.5rem;
   font-size: 0.875rem;
@@ -1378,17 +1410,17 @@ button {
   line-height: 1.6;
 }
 
-.credits-section>p {
+.credits-section > p {
   font-size: 0.95rem;
   color: var(--text-secondary);
   line-height: 1.6;
 }
 
-.credits-section>p a {
+.credits-section > p a {
   color: var(--accent-secondary);
 }
 
-.credits-section>p a:hover {
+.credits-section > p a:hover {
   color: var(--accent-primary);
 }
 

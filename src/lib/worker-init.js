@@ -73,6 +73,41 @@ export async function resizePDF(file, paperSize) {
   return runGSOperation("resize", { fileData, paperSize });
 }
 
+// Get page count from PDF - runs in background with cancellation support
+export async function getPageCount(file, signal) {
+  const fileData = await readFileAsArrayBuffer(file);
+
+  const worker = new Worker(new URL("./background-worker.js", import.meta.url), { type: "module" });
+
+  worker.postMessage({
+    data: { operation: "getPageCount", fileData },
+    target: "wasm",
+  });
+
+  return new Promise((resolve, reject) => {
+    // Handle abort signal for cancellation
+    if (signal) {
+      signal.addEventListener("abort", () => {
+        worker.terminate();
+        reject(new DOMException("Page count detection aborted", "AbortError"));
+      });
+    }
+
+    const listener = (e) => {
+      resolve(e.data);
+      worker.removeEventListener("message", listener);
+      setTimeout(() => worker.terminate(), 0);
+    };
+    worker.addEventListener("message", listener);
+
+    worker.addEventListener("error", (e) => {
+      console.error("Worker error:", e);
+      reject(e);
+      worker.terminate();
+    });
+  });
+}
+
 // Legacy support
 export async function _GSPS2PDF(dataStruct) {
   const worker = new Worker(new URL("./background-worker.js", import.meta.url), { type: "module" });

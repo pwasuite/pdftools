@@ -8,7 +8,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{js,jsx,css,json}\" \"*.{js,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{js,jsx,css,json}\" \"*.{js,json,md}\""
+    "format:check": "prettier --check \"src/**/*.{js,jsx,css,json}\" \"*.{js,json,md}\"",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "jszip": "^3.10.1",
@@ -16,11 +20,18 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.5.1",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.0.0",
+    "@vitest/coverage-istanbul": "^1.0.4",
+    "@vitest/ui": "^1.0.4",
+    "jsdom": "^23.0.1",
     "prettier": "3.2.5",
     "vite": "^3.0.0",
-    "vite-plugin-pwa": "^1.2.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^1.0.4"
   }
 }

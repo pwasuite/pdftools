@@ -8,12 +8,13 @@ This project is another usage of the `gs.wasm` that [@ochachacha](https://github
 It is based on a fork of [Laurent Meyer's demo](https://github.com/laurentmmeyer/ghostscript-pdf-compress.wasm) of PDF compression right into the browser.
 
 It provides many tools for PDF manipulation, right into the browser:
-* compression/minfication
-* merge multiple PDF files into one
-* split PDF into individual pages
-* extract page ranges
-* convert PDF to grayscale
-* change page size
+
+- compression/minfication
+- merge multiple PDF files into one
+- split PDF into individual pages
+- extract page ranges
+- convert PDF to grayscale
+- change page size
 
 It applies ghostscript commands such as:
 
@@ -25,20 +26,20 @@ Exact command varies based on user input and use case.
 
 ## WebWorker
 
-The compression is processed in a webworker so that the main thread doesn't become unresponsive and there is virtually no limit to the size of the PDF that you can compress :tada:  
+The compression is processed in a webworker so that the main thread doesn't become unresponsive and there is virtually no limit to the size of the PDF that you can compress :tada:
 
 ## Run the project
 
 To run the project, simply do the following steps
 
 ```bash
-git clone git@github.com:laurentmmeyer/ghostscript-pdf-compress.wasm.git
-cd ghostscript-pdf-compress.wasm
-yarn
-yarn dev
+git clone https://github.com/pwasuite/pdftools.git
+cd pdftools
+npm install
+npm run build # static content in dist folder
+npm run dev # start vite dev server
 ```
 
 ## Try it online
 
 [https://pdf.pwasuite.com/](https://pdf.pwasuite.com/)
-

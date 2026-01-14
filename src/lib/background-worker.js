@@ -186,6 +186,69 @@ function handleExtractPages(data, callback) {
   );
 }
 
+// Get page count from PDF using PostScript command
+// This uses a specialized approach that captures stdout instead of file output
+function handleGetPageCount(data, callback) {
+  const inputFiles = [{ name: "input.pdf", data: new Uint8Array(data.fileData) }];
+
+  // PostScript command to open PDF and output page count
+  // The command: (input.pdf) (r) file runpdfbegin pdfpagecount = quit
+  const gsArguments = [
+    "-dNODISPLAY",
+    "-dNOPAUSE",
+    "-dBATCH",
+    "-q",
+    "-c",
+    "(input.pdf) (r) file runpdfbegin pdfpagecount = quit",
+  ];
+
+  let capturedOutput = "";
+
+  Module = {
+    preRun: [
+      function () {
+        inputFiles.forEach((file) => {
+          self.Module.FS.writeFile(file.name, file.data);
+        });
+      },
+    ],
+    postRun: [
+      function () {
+        // Parse the captured output to extract page count
+        const pageCount = parseInt(capturedOutput.trim(), 10);
+        if (!isNaN(pageCount) && pageCount > 0) {
+          callback({ pageCount });
+        } else {
+          callback({ pageCount: null, error: "Could not determine page count" });
+        }
+      },
+    ],
+    arguments: gsArguments,
+    print: function (text) {
+      console.log("GS PageCount:", text);
+      capturedOutput += text + "\n";
+    },
+    printErr: function (text) {
+      console.error("GS PageCount Error:", text);
+    },
+    totalDependencies: 0,
+    noExitRuntime: 1,
+  };
+
+  if (!self.Module) {
+    self.Module = Module;
+    loadScript();
+  } else {
+    self.Module["calledRun"] = false;
+    self.Module["postRun"] = Module.postRun;
+    self.Module["preRun"] = Module.preRun;
+    self.Module["arguments"] = gsArguments;
+    // Reset the print handler for this operation
+    self.Module["print"] = Module.print;
+    self.Module.callMain(gsArguments);
+  }
+}
+
 self.addEventListener("message", function ({ data: e }) {
   console.log("Worker received message:", e);
 
@@ -219,6 +282,9 @@ self.addEventListener("message", function ({ data: e }) {
       break;
     case "resize":
       handleResize(messageData, sendResponse);
+      break;
+    case "getPageCount":
+      handleGetPageCount(messageData, sendResponse);
       break;
     default:
       console.error("Unknown operation:", operation);

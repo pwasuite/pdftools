@@ -117,6 +117,17 @@ export const translations = {
     willExtract: "Will extract",
     page: "page",
     pages: "pages",
+    // Page count detection
+    detectingPageCount: "Attempting to detect page count automatically in the background.",
+    extractingAllPagesTip:
+      "You are extracting all the pages into a new document. You may want to try our",
+    splitFeature: "split feature",
+    startsFromBeginning: "starts from the beginning of the source document",
+    endsAtLastPage: "ends at the last page of the source document",
+    resetStartToOne: "reset start range to page 1",
+    resetEndToLast: "reset end range to last page",
+    pageCountDetected: "Page count:",
+    pageCountFailed: "Could not detect page count",
 
     // Grayscale page
     grayscalePdf: "Grayscale PDF",
@@ -289,6 +300,17 @@ export const translations = {
     willExtract: "Extraira",
     page: "page",
     pages: "pages",
+    // Page count detection
+    detectingPageCount: "Détection du nombre de pages en cours en arrière-plan.",
+    extractingAllPagesTip:
+      "Vous extrayez toutes les pages dans un nouveau document. Vous pouvez essayer notre",
+    splitFeature: "fonctionnalité de division",
+    startsFromBeginning: "commence au début du document source",
+    endsAtLastPage: "se termine à la dernière page du document source",
+    resetStartToOne: "réinitialiser la plage de début à la page 1",
+    resetEndToLast: "réinitialiser la plage de fin à la dernière page",
+    pageCountDetected: "Nombre de pages :",
+    pageCountFailed: "Impossible de détecter le nombre de pages",
 
     // Grayscale page
     grayscalePdf: "PDF en niveaux de gris",
