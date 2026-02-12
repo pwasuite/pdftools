@@ -4074,7 +4074,7 @@ var SYSCALLS = {
     HEAP32[(buf + 12) >> 2] = stat.uid;
     HEAP32[(buf + 16) >> 2] = stat.gid;
     HEAP32[(buf + 20) >> 2] = stat.rdev;
-    (tempI64 = [
+    ((tempI64 = [
       stat.size >>> 0,
       ((tempDouble = stat.size),
       +Math.abs(tempDouble) >= 1.0
@@ -4084,13 +4084,13 @@ var SYSCALLS = {
         : 0),
     ]),
       (HEAP32[(buf + 24) >> 2] = tempI64[0]),
-      (HEAP32[(buf + 28) >> 2] = tempI64[1]);
+      (HEAP32[(buf + 28) >> 2] = tempI64[1]));
     HEAP32[(buf + 32) >> 2] = 4096;
     HEAP32[(buf + 36) >> 2] = stat.blocks;
     var atime = stat.atime.getTime();
     var mtime = stat.mtime.getTime();
     var ctime = stat.ctime.getTime();
-    (tempI64 = [
+    ((tempI64 = [
       Math.floor(atime / 1000) >>> 0,
       ((tempDouble = Math.floor(atime / 1000)),
       +Math.abs(tempDouble) >= 1.0
@@ -4100,9 +4100,9 @@ var SYSCALLS = {
         : 0),
     ]),
       (HEAP32[(buf + 40) >> 2] = tempI64[0]),
-      (HEAP32[(buf + 44) >> 2] = tempI64[1]);
+      (HEAP32[(buf + 44) >> 2] = tempI64[1]));
     HEAPU32[(buf + 48) >> 2] = (atime % 1000) * 1000;
-    (tempI64 = [
+    ((tempI64 = [
       Math.floor(mtime / 1000) >>> 0,
       ((tempDouble = Math.floor(mtime / 1000)),
       +Math.abs(tempDouble) >= 1.0
@@ -4112,9 +4112,9 @@ var SYSCALLS = {
         : 0),
     ]),
       (HEAP32[(buf + 56) >> 2] = tempI64[0]),
-      (HEAP32[(buf + 60) >> 2] = tempI64[1]);
+      (HEAP32[(buf + 60) >> 2] = tempI64[1]));
     HEAPU32[(buf + 64) >> 2] = (mtime % 1000) * 1000;
-    (tempI64 = [
+    ((tempI64 = [
       Math.floor(ctime / 1000) >>> 0,
       ((tempDouble = Math.floor(ctime / 1000)),
       +Math.abs(tempDouble) >= 1.0
@@ -4124,9 +4124,9 @@ var SYSCALLS = {
         : 0),
     ]),
       (HEAP32[(buf + 72) >> 2] = tempI64[0]),
-      (HEAP32[(buf + 76) >> 2] = tempI64[1]);
+      (HEAP32[(buf + 76) >> 2] = tempI64[1]));
     HEAPU32[(buf + 80) >> 2] = (ctime % 1000) * 1000;
-    (tempI64 = [
+    ((tempI64 = [
       stat.ino >>> 0,
       ((tempDouble = stat.ino),
       +Math.abs(tempDouble) >= 1.0
@@ -4136,7 +4136,7 @@ var SYSCALLS = {
         : 0),
     ]),
       (HEAP32[(buf + 88) >> 2] = tempI64[0]),
-      (HEAP32[(buf + 92) >> 2] = tempI64[1]);
+      (HEAP32[(buf + 92) >> 2] = tempI64[1]));
     return 0;
   },
   doMsync(addr, stream, len, flags, offset) {
@@ -4291,7 +4291,7 @@ function ___syscall_getdents64(fd, dirp, count) {
               : 8; // DT_REG, regular file.
       }
       assert(id);
-      (tempI64 = [
+      ((tempI64 = [
         id >>> 0,
         ((tempDouble = id),
         +Math.abs(tempDouble) >= 1.0
@@ -4301,8 +4301,8 @@ function ___syscall_getdents64(fd, dirp, count) {
           : 0),
       ]),
         (HEAP32[(dirp + pos) >> 2] = tempI64[0]),
-        (HEAP32[(dirp + pos + 4) >> 2] = tempI64[1]);
-      (tempI64 = [
+        (HEAP32[(dirp + pos + 4) >> 2] = tempI64[1]));
+      ((tempI64 = [
         ((idx + 1) * struct_size) >>> 0,
         ((tempDouble = (idx + 1) * struct_size),
         +Math.abs(tempDouble) >= 1.0
@@ -4312,7 +4312,7 @@ function ___syscall_getdents64(fd, dirp, count) {
           : 0),
       ]),
         (HEAP32[(dirp + pos + 8) >> 2] = tempI64[0]),
-        (HEAP32[(dirp + pos + 12) >> 2] = tempI64[1]);
+        (HEAP32[(dirp + pos + 12) >> 2] = tempI64[1]));
       HEAP16[(dirp + pos + 16) >> 1] = 280;
       HEAP8[dirp + pos + 18] = type;
       stringToUTF8(name, dirp + pos + 19, 256);
@@ -4972,7 +4972,7 @@ function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {
     if (isNaN(offset)) return 61;
     var stream = SYSCALLS.getStreamFromFD(fd);
     FS.llseek(stream, offset, whence);
-    (tempI64 = [
+    ((tempI64 = [
       stream.position >>> 0,
       ((tempDouble = stream.position),
       +Math.abs(tempDouble) >= 1.0
@@ -4982,7 +4982,7 @@ function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {
         : 0),
     ]),
       (HEAP32[newOffset >> 2] = tempI64[0]),
-      (HEAP32[(newOffset + 4) >> 2] = tempI64[1]);
+      (HEAP32[(newOffset + 4) >> 2] = tempI64[1]));
     if (stream.getdents && offset === 0 && whence === 0) stream.getdents = null; // reset readdir state
     return 0;
   } catch (e) {

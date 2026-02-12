@@ -1,0 +1,35 @@
+# GS Swissknife WASM
+
+A browser-based PDF and image manipulation toolkit powered by Ghostscript compiled to WebAssembly.
+
+## Core Features
+- **Compress**: Reduce PDF file size using various quality presets.
+- **Merge**: Combine multiple PDF files into a single document.
+- **Split**: Extract individual pages or ranges from a PDF.
+- **Grayscale**: Convert color PDFs to grayscale.
+- **Resize**: Change PDF page dimensions.
+
+## Usage & Installation
+- **Web-First**: Run directly in any modern browser at [pdf.pwasuite.com](https://pdf.pwasuite.com/).
+- **PWA Support**: Can be installed as a Progressive Web App (PWA) for a native-like experience and full **offline functionality**.
+
+## Why Choose GS Swissknife WASM?
+While many online PDF tools exist, this project offers a unique combination of privacy, performance, and accessibility:
+- **100% Private (No Uploads)**: Most "online" PDF tools upload your sensitive documents to their servers. This app processes everything **locally in your browser**. Your data never leaves your device.
+- **True Offline Capability**: Thanks to PWA technology, this is one of the few web-based PDF toolkits that works entirely **offline** once installed.
+- **Industry-Standard Engine**: Powered by **Ghostscript**, the gold standard for PDF manipulation, ensuring high-quality results that many lightweight web libraries cannot match.
+- **Zero Tracking/Ads**: A clean, open-source tool focused entirely on the task, without the bloat, ads, or privacy risks associated with commercial alternatives.
+
+> [!IMPORTANT]
+> When using other web-based PDF tools, always verify if your files are being uploaded to a remote server. For sensitive documents, GS Swissknife WASM is the safer, faster, and more private choice.
+
+## For Developers (Open Source)
+This project is open-source and serves as a reference implementation for:
+- **WebAssembly (WASM)**: High-performance execution of Ghostscript in the browser.
+- **Modern Stack**: Built with **React**, **Vite**, and **Vanilla CSS**.
+- **Performance**: Utilizing **WebWorkers** to keep the UI thread responsive during heavy processing.
+- **PWA**: Demonstrating offline capabilities and service worker integration.
+
+## Technical Details
+- **Engine**: Ghostscript (gs.wasm)
+- **Privacy**: 100% client-side. All processing happens locally; no files are ever uploaded to a server.

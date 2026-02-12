@@ -1,0 +1,21 @@
+# Lefthook git hooks — standalone config for when this folder is the git root
+# Docs: https://lefthook.dev/configuration/
+
+pre-commit:
+  parallel: true
+  commands:
+    prettier:
+      glob: "**/*.{js,jsx,css,json,md}"
+      exclude: "{dist,node_modules}/**"
+      run: npx prettier --check {staged_files}
+    tests:
+      run: npx vitest run
+
+pre-push:
+  scripts:
+    "protect-branches.sh":
+      runner: bash
+      use_stdin: true
+  commands:
+    build:
+      run: npx vite build

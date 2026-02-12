@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getTranslation } from "../i18n.js";
 import { compressPDF } from "../lib/worker-init.js";
 import { CompressIcon, BackIcon, PdfIcon, TrashIcon } from "../components/icons";
@@ -49,10 +49,17 @@ function CompressPage({ onBack, lang }) {
   };
 
   const reset = () => {
+    if (result?.url) URL.revokeObjectURL(result.url);
     setFile(null);
     setStatus("idle");
     setResult(null);
   };
+
+  useEffect(() => {
+    return () => {
+      if (result?.url) URL.revokeObjectURL(result.url);
+    };
+  }, [result]);
 
   return (
     <div className="feature-page compress-page">
