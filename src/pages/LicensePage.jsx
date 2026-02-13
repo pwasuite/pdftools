@@ -9,7 +9,8 @@ function LicensePage({ onBack, lang }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("/LICENSE.txt")
+    const controller = new AbortController();
+    fetch("/LICENSE.txt", { signal: controller.signal })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to load license file");
@@ -21,10 +22,12 @@ function LicensePage({ onBack, lang }) {
         setLoading(false);
       })
       .catch((err) => {
+        if (err.name === "AbortError") return;
         console.error("Error loading license:", err);
         setError(err.message);
         setLoading(false);
       });
+    return () => controller.abort();
   }, []);
 
   return (

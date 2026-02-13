@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getTranslation } from "../i18n.js";
 import { grayscalePDF } from "../lib/worker-init.js";
 import { GrayscaleIcon, BackIcon, PdfIcon, TrashIcon } from "../components/icons";
@@ -45,10 +45,17 @@ function GrayscalePage({ onBack, lang }) {
   };
 
   const reset = () => {
+    if (result?.url) URL.revokeObjectURL(result.url);
     setFile(null);
     setStatus("idle");
     setResult(null);
   };
+
+  useEffect(() => {
+    return () => {
+      if (result?.url) URL.revokeObjectURL(result.url);
+    };
+  }, [result]);
 
   return (
     <div className="feature-page grayscale-page">
