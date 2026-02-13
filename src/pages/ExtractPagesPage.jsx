@@ -114,6 +114,7 @@ function ExtractPagesPage({ onBack, lang, setPage }) {
   };
 
   const reset = () => {
+    if (result?.url) URL.revokeObjectURL(result.url);
     abortPageCountDetection();
     setFile(null);
     setStatus("idle");
@@ -123,6 +124,12 @@ function ExtractPagesPage({ onBack, lang, setPage }) {
     setPageCount(null);
     setPageCountStatus("idle");
   };
+
+  useEffect(() => {
+    return () => {
+      if (result?.url) URL.revokeObjectURL(result.url);
+    };
+  }, [result]);
 
   // Handle back with cleanup
   const handleBack = () => {

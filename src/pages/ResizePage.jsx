@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getTranslation } from "../i18n.js";
 import { resizePDF } from "../lib/worker-init.js";
 import { ResizeIcon, BackIcon, PdfIcon, TrashIcon } from "../components/icons";
@@ -46,10 +46,17 @@ function ResizePage({ onBack, lang }) {
   };
 
   const reset = () => {
+    if (result?.url) URL.revokeObjectURL(result.url);
     setFile(null);
     setStatus("idle");
     setResult(null);
   };
+
+  useEffect(() => {
+    return () => {
+      if (result?.url) URL.revokeObjectURL(result.url);
+    };
+  }, [result]);
 
   const paperSizes = [
     { value: "a4", label: "A4 (210 x 297 mm)" },

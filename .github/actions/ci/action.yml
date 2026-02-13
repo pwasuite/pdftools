@@ -1,0 +1,38 @@
+name: CI
+description: Run format check, tests, and build for gs-swissknife-wasm
+
+inputs:
+  working-directory:
+    description: Path to the gs-swissknife-wasm package
+    required: false
+    default: "."
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+        cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Check formatting
+      run: npm run format:check
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Run tests
+      run: npm run test:run
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Build
+      run: npm run build
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}

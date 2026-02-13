@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import JSZip from "jszip";
 import { getTranslation } from "../i18n.js";
 import { splitPDF } from "../lib/worker-init.js";
@@ -83,10 +83,21 @@ function SplitPage({ onBack, lang }) {
   };
 
   const reset = () => {
+    if (result?.pages) {
+      result.pages.forEach((page) => URL.revokeObjectURL(page.url));
+    }
     setFile(null);
     setStatus("idle");
     setResult(null);
   };
+
+  useEffect(() => {
+    return () => {
+      if (result?.pages) {
+        result.pages.forEach((page) => URL.revokeObjectURL(page.url));
+      }
+    };
+  }, [result]);
 
   return (
     <div className="feature-page split-page">

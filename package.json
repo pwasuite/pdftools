@@ -12,26 +12,27 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepare": "lefthook install || true"
   },
   "dependencies": {
     "jszip": "^3.10.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.1.5",
-    "@testing-library/react": "^14.1.2",
-    "@testing-library/user-event": "^14.5.1",
-    "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.6",
-    "@vitejs/plugin-react": "^2.0.0",
-    "@vitest/coverage-istanbul": "^1.0.4",
-    "@vitest/ui": "^1.0.4",
-    "jsdom": "^23.0.1",
-    "prettier": "3.2.5",
-    "vite": "^3.0.0",
+    "@testing-library/dom": "^10.0.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@vitejs/plugin-react": "^4.5.2",
+    "@vitest/coverage-istanbul": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "jsdom": "^26.1.0",
+    "lefthook": "^2.1.0",
+    "prettier": "^3.5.3",
+    "vite": "^6.3.5",
     "vite-plugin-pwa": "^1.2.0",
-    "vitest": "^1.0.4"
+    "vitest": "^3.2.4"
   }
 }
